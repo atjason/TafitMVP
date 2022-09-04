@@ -1,7 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include "Arduino.h"
+#include <time.h>
 
 class Utils
 {
@@ -9,6 +9,8 @@ class Utils
     Utils();
 
     int freeMemory();
+
+    tm* timestamp2tm(long, int tzSeconds = 8 * 3600);
 };
 
 extern Utils utils;
