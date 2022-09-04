@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 #include "Bluetooth.h"
+#include "Utils.h"
 #include "Storage.h"
 
 // Pin 10 为 RX，接蓝牙 TXD;
@@ -82,7 +83,7 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
   const char separator = '_';
   bool paramOk;
 
-  if (btOp == "LD") paramOk = splitParamString(btParam, separator, paramCount, params);
+  if (btOp == "LD") paramOk = utils.splitString(btParam, separator, paramCount, params);
   
   if (!paramOk) {
     String result = "`PAE&" + btParam + "#";
@@ -98,24 +99,6 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
     long fromTime = params[2].toInt();
     storage.loadHistory(fromDay, toDay, fromTime, writeData);
   }
-}
-
-bool Bluetooth::splitParamString(String str, char separator, byte count, String result[]) {
-
-  int start = 0;
-
-  for (byte i = 0; i < count; i++) {
-    int to = str.indexOf(separator, start);
-    if (to > 0) {
-      result[i] = str.substring(start, to);
-      start = to + 1;
-    } else {
-      result[i] = str.substring(start);
-      break;
-    }
-  }
-
-  return result[count - 1].length() > 0;
 }
 
 Bluetooth BT = Bluetooth();
