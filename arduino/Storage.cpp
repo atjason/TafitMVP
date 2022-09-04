@@ -160,7 +160,7 @@ void Storage::setTime(long timeOffset, long tzSeconds) {
 
 long addLastTime = 0;
 String addStr = "";
-char *addLastFilename = "";
+String addLastFilename = "";
 long addLastPosition = 0;
 
 void Storage::add() {
@@ -202,21 +202,22 @@ void Storage::saveStr(long timestamp, String str) {
   Serial.print("timestamp: "); Serial.println(timestamp);
   Serial.print("str: "); Serial.println(str);
 
-  const int day = 0; // TODO from timestamp to day.
-  char *filename = "1";
+  const tm *time = utils.timestamp2tm(timestamp, m_tzSeconds);
+  String filename = String(time->tm_mday);
+  Serial.println(time->tm_mday);
 
   if (addLastFilename != filename) {
     addLastFilename = filename;
 
-    if(!SerialFlash.exists(filename)) {
+    if(!SerialFlash.exists(filename.c_str())) {
       // Create if doesn't exist.
       // In fact erasable file is at least block size, e.g., 64KB.
-      Serial.println("Create file:" + String(filename));
-      SerialFlash.createErasable(filename, 4096);
+      Serial.println("Create file:" + filename);
+      SerialFlash.createErasable(filename.c_str(), 4096);
 
     } else {
       // Erease if it's day of last month.
-      SerialFlashFile file = SerialFlash.open(filename);
+      SerialFlashFile file = SerialFlash.open(filename.c_str());
 
       const byte length = 10;
       char buffer[length];
@@ -226,7 +227,7 @@ void Storage::saveStr(long timestamp, String str) {
       const long startTimestamp = atol(buffer);
       if (startTimestamp < (timestamp - 3600 * 24)) {
         Serial.println("Old timestamp:" + startTimestamp);
-        Serial.println("Erease file:" + String(filename));
+        Serial.println("Erease file:" + filename);
         file.erase();
         addLastPosition = 0;
 
@@ -262,7 +263,7 @@ void Storage::saveStr(long timestamp, String str) {
   Serial.println("File: " + String(filename));
   Serial.println("Position: " + String(addLastPosition));
 
-  SerialFlashFile file = SerialFlash.open(filename);
+  SerialFlashFile file = SerialFlash.open(filename.c_str());
   file.seek(addLastPosition);
   file.write(str.c_str(), str.length());
   addLastPosition = file.position();

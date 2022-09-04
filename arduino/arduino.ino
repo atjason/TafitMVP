@@ -43,7 +43,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, FALLING);
 
   storage.begin();
-  // storage.setTime(1661933405, 8 * 3600);
+  // storage.setTime(1662291921, 8 * 3600);
 
   // float v = vcc.Read_Volts();
   // Serial.print("VCC: "); Serial.println(v);
@@ -52,7 +52,7 @@ void setup() {
   
   // TODO Remove following test code.
   // storage.add();
-  storage.loadFile("1", print2);
+  storage.loadFile("4", print2);
 
   // logger.println(1);
   // logger.println(1234567890L);
@@ -93,7 +93,7 @@ void loop() {
         storage.add();
         
         if ((times % 5) == 0) { // TODO Remove it.
-          storage.loadFile("1", print2);
+          storage.loadFile("4", print2);
         }
       }
     }    
