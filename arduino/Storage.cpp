@@ -101,7 +101,7 @@ void Storage::loadFile(const char *filename, void (*fn)(const char *), String *s
   SerialFlashFile file = SerialFlash.open(filename);
 
   const byte length = 16;
-  char buffer[length + 1];
+  char buffer[length + 1] = {0};
   long size = file.size();
   bool done = false;
 
@@ -137,7 +137,7 @@ void Storage::loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(co
     }
     
     const byte length = 10; // TODO 10 to enum.
-    char buffer[length];
+    char buffer[length + 1] = {0};
 
     SerialFlashFile file = SerialFlash.open(filename.c_str());
     file.seek(0);
@@ -220,7 +220,7 @@ void Storage::saveStr(long timestamp, String str) {
       SerialFlashFile file = SerialFlash.open(filename.c_str());
 
       const byte length = 10;
-      char buffer[length];
+      char buffer[length + 1] = {0};
       file.seek(0);
       file.read(buffer, length);
 
@@ -235,7 +235,7 @@ void Storage::saveStr(long timestamp, String str) {
         // Find last position to append.
 
         const int length = 16;
-        char buffer[length];
+        char buffer[length + 1] = {0};
         long position = 0;
         long size = file.size();
 
