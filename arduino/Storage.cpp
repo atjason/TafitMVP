@@ -77,7 +77,7 @@ void Storage::saveConfig() {
   Serial.print("m_timeOffset: "); Serial.println(m_timeOffset);
 }
 
-void Storage::loadFile(const char *filename, void (*fn)(const char *) = NULL) {
+void Storage::loadFile(const char *filename, void (*fn)(const char *), String *str) {
 
   Serial.print("Load "); Serial.println(filename);
 
@@ -106,6 +106,7 @@ void Storage::loadFile(const char *filename, void (*fn)(const char *) = NULL) {
     }
 
     if (fn) (*fn)(buffer);
+    if (str) str->concat(buffer);
   }
 
   if (fn) (*fn)(""); // Send empty to let `fn` flush.

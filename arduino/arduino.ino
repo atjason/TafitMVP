@@ -62,6 +62,12 @@ void setup() {
   // storage.loadFile("log");
   // storage.listFiles();
   // storage.eraseAll();
+
+  // long timestamp = 1662291921;
+  // tm *t = utils.timestamp2tm(timestamp);
+  // Serial.println(t->tm_year);
+  // Serial.println(t->tm_mon);
+  // Serial.println(t->tm_mday);
 }
  
 void loop() {
