@@ -43,7 +43,7 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, FALLING);
 
   storage.begin();
-  // storage.setTimeOffset(1661933405);
+  // storage.setTime(1661933405, 8 * 3600);
 
   // float v = vcc.Read_Volts();
   // Serial.print("VCC: "); Serial.println(v);

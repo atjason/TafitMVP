@@ -1,6 +1,7 @@
 // https://github.com/PaulStoffregen/SerialFlash
 
 #include "Storage.h"
+#include "Utils.h"
 #include "Arduino.h"
 
 #include <SPI.h>
@@ -20,6 +21,7 @@ SerialFlashFile logFile;
 Storage::Storage() {
   m_configFile = "config";
   m_timeOffset = 0;
+  m_tzSeconds = 0;
 }
 
 void Storage::begin() {
@@ -46,15 +48,25 @@ void Storage::loadConfig() {
     return;
   }
 
-  SerialFlashFile file = SerialFlash.open(m_configFile);
+  String configStr = "";
+  loadFile(m_configFile, NULL, &configStr);
+  Serial.println(configStr);
 
-  char str[Config_TimeOffset_Length];
-  file.seek(Config_TimeOffset_Start);
-  file.read(str, Config_TimeOffset_Length);
-  m_timeOffset = atol(str);
+  const byte count = 2;
+  String configParts[count];
+  const bool ok = utils.splitString(configStr, '_', count, configParts);
+  if (!ok) {
+    Serial.println("E config.");
+    Serial.println(configStr);
+    return;
+  }
+
+  m_timeOffset = configParts[0].toInt();
+  m_tzSeconds = configParts[1].toInt();
 
   Serial.println("Load config:");
   Serial.print("m_timeOffset: "); Serial.println(m_timeOffset);
+  Serial.print("m_tzSeconds: "); Serial.println(m_tzSeconds);
 }
 
 void Storage::saveConfig() {
@@ -65,16 +77,16 @@ void Storage::saveConfig() {
     while (!SerialFlash.ready()) delay(50); // TODO: timeout
   }
 
+  String configStr = String(m_timeOffset);
+  configStr += "_" + String(m_tzSeconds); // TODO Add separator to enum.
+
   SerialFlashFile file = SerialFlash.open(m_configFile);
   file.erase();
-
-  char str[Config_TimeOffset_Length];
-  ltoa(m_timeOffset, str, DEC);
-  file.seek(Config_TimeOffset_Start);
-  file.write(str, Config_TimeOffset_Length);
+  file.write(configStr.c_str(), configStr.length());
 
   Serial.println("Save config:");
   Serial.print("m_timeOffset: "); Serial.println(m_timeOffset);
+  Serial.print("m_tzSeconds: "); Serial.println(m_tzSeconds);
 }
 
 void Storage::loadFile(const char *filename, void (*fn)(const char *), String *str) {
@@ -106,7 +118,7 @@ void Storage::loadFile(const char *filename, void (*fn)(const char *), String *s
     }
 
     if (fn) (*fn)(buffer);
-    if (str) str->concat(buffer);
+    if (str) str->concat(buffer); // NOTE: Be careful for memory usage.
   }
 
   if (fn) (*fn)(""); // Send empty to let `fn` flush.
@@ -138,8 +150,9 @@ void Storage::loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(co
   }
 }
 
-void Storage::setTimeOffset(long timeOffset) {
+void Storage::setTime(long timeOffset, long tzSeconds) {
   m_timeOffset = timeOffset;
+  m_tzSeconds = tzSeconds;
   saveConfig();
 }
 

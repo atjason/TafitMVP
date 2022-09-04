@@ -23,11 +23,14 @@
 class Storage
 {
   public:
+    const char *m_version = "0.1";
+
+  public:
     Storage();
 
     void begin();
 
-    void setTimeOffset(long);
+    void setTime(long, long);
 
     void add();
 
@@ -44,6 +47,7 @@ class Storage
   private:
     char *m_configFile;
     long m_timeOffset;
+    int m_tzSeconds;
 
     void loadConfig();
     void saveConfig();
