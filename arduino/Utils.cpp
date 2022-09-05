@@ -1,5 +1,9 @@
 #include "Utils.h"
 
+Utils::Utils() {
+  
+}
+
 #ifdef __arm__
 // should use uinstd.h to define sbrk but Due causes a conflict
 extern "C" char* sbrk(int incr);
@@ -31,6 +35,11 @@ tm* Utils::timestamp2tm(long timestamp, int tzSeconds) {
   //   int tm_yday;   /* day in the year 0-365 */
   //   int tm_isdst;  /* daylight saving time */
   // };
+  
+#ifndef UNIX_OFFSET
+#define UNIX_OFFSET 946684800 // Difference between the Y2K and the UNIX epochs, in seconds.
+#endif
+  
   time_t _timestamp = timestamp - UNIX_OFFSET + tzSeconds;   
   struct tm *t = gmtime(&_timestamp);
   t->tm_year += 1900;
@@ -55,3 +64,5 @@ bool Utils::splitString(String str, char separator, byte count, String result[])
 
   return result[count - 1].length() > 0;
 }
+
+Utils utils = Utils();
