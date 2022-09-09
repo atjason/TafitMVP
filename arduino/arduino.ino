@@ -9,10 +9,12 @@
 
 const byte ledPin = 9; // Original is 13 of built-in led.
 const byte magneticPin = 2;
-const byte btStatePin = 7;
+const byte btStatePin = 3;
+
 int times = 0;
 String lastTimes = "";
 volatile bool hasNewTimes = false;
+volatile bool btConnected = false;
 
 unsigned long lastTriggerTime = 0;
 unsigned long lastValidTriggerTime = 0;
@@ -25,6 +27,10 @@ void magneticTriggered() {
   if (state == LOW) {
     hasNewTimes = true;    
   }
+}
+
+void btTriggered() {
+  btConnected = digitalRead(btStatePin) != LOW;
 }
 
 void print2(const char *str) { // TODO Remove it.
@@ -42,9 +48,11 @@ void setup() {
   wdt.begin();
 
   pinMode(ledPin, OUTPUT);
+  pinMode(btStatePin, INPUT);
+  pinMode(magneticPin, INPUT);
   analogWrite(ledPin, 4);
   
-  pinMode(magneticPin, INPUT);
+  attachInterrupt(digitalPinToInterrupt(btStatePin), btTriggered, CHANGE);
   attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, FALLING);
 
   storage.begin();
@@ -80,10 +88,19 @@ void loop() {
 
   BT.monitor();
 
+  if (btConnected) {
+    // Serial.println("BT connected.");
+    wdt.updateTimeGate(now);
+    BT.wakeUp();
+    
+    analogWrite(ledPin, 128);
+    delay(200);
+    analogWrite(ledPin, 4);
+  }
+
   if (hasNewTimes) {
     hasNewTimes = false;
     wdt.updateTimeGate(now);
-    BT.wakeUp(); // TODO Wait up when BT connected.
     analogWrite(ledPin, 4);
     
     const int now = millis();
@@ -119,9 +136,10 @@ void loop() {
     } 
   }
 
-  if (wdt.shouldSleep(now)) {
+  if (wdt.shouldSleep(now) && !btConnected) {
     digitalWrite(ledPin, LOW);
     BT.sleep();
+    Serial.println("Will sleep.");
     delay(100);
     wdt.sleep();
   } else {

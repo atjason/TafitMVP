@@ -41,7 +41,7 @@ Bluetooth::Bluetooth() {
 void Bluetooth::begin() {
   _BT.begin(115200); // TODO Check state and wait.
   pinMode(enablePin, OUTPUT);
-  wakeUp();
+  sleep();
 }
 
 void Bluetooth::monitor() {
