@@ -82,6 +82,8 @@ void setup() {
   // Serial.println(t->tm_year);
   // Serial.println(t->tm_mon);
   // Serial.println(t->tm_mday);
+
+  // BT.print("AT+LED=0\r\n");
 }
  
 void loop() {
@@ -90,7 +92,7 @@ void loop() {
   BT.monitor();
 
   if (btConnected) {
-    if ((now - lastBTTriggerTime) > 60 * 1000) { // 60s as bt keep on trigger when connected. // TODO Add in enum.
+    if (!lastBTTriggerTime || (now - lastBTTriggerTime) > 10 * 1000) { // 10s as bt keep on trigger when connected. // TODO Add in enum.
       lastBTTriggerTime = now;
 
       Serial.println("BT connected.");
