@@ -30,7 +30,7 @@ class Storage
 
     void begin();
 
-    void setTime(long, long);
+    void setTime(long timeOffset, long tzSeconds = 0);
 
     void add();
 
@@ -44,9 +44,11 @@ class Storage
 
     void eraseAll();
 
+  public:
+    long m_timeOffset;
+
   private:
     char *m_configFile;
-    long m_timeOffset;
     int m_tzSeconds;
 
     void loadConfig();

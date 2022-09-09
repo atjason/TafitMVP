@@ -2,6 +2,7 @@
 #include <Wire.h>
 #include "Log.h"
 #include "Vcc.h"
+#include "WDT.h"
 #include "Utils.h"
 #include "Storage.h"
 #include "Bluetooth.h"
@@ -37,7 +38,10 @@ void setup() {
 
   BT.begin();
 
+  wdt.begin();
+
   pinMode(ledPin, OUTPUT);
+  analogWrite(ledPin, 4);
   
   pinMode(magneticPin, INPUT);
   attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, FALLING);
@@ -52,7 +56,7 @@ void setup() {
   
   // TODO Remove following test code.
   // storage.add();
-  storage.loadFile("4", print2);
+  // storage.loadFile("4", print2);
 
   // logger.println(1);
   // logger.println(1234567890L);
@@ -71,10 +75,14 @@ void setup() {
 }
  
 void loop() {
+  const long now = millis();
+
   BT.monitor();
 
   if (hasNewTimes) {
     hasNewTimes = false;
+    wdt.updateTimeGate(now);
+    analogWrite(ledPin, 4);
     
     const int now = millis();
     if ((now - lastTriggerTime) > 50) { // 50ms for bounce.
@@ -82,6 +90,10 @@ void loop() {
 
       if ((now - lastValidTriggerTime) > 500) { // 500ms for press interval.
         lastValidTriggerTime = now;
+
+        analogWrite(ledPin, 128);
+        delay(200);
+        analogWrite(ledPin, 4);
 
         times += 1;
         Serial.println(times);
@@ -91,11 +103,25 @@ void loop() {
         str.concat(times);
 
         storage.add();
-        
-        if ((times % 5) == 0) { // TODO Remove it.
-          storage.loadFile("4", print2);
+
+        long totalSleepTime = wdt.getTotalSleepTime();
+        if (totalSleepTime) {
+          wdt.resetTotalSleepTime();
+          storage.setTime(storage.m_timeOffset + totalSleepTime);
         }
+        
+        // if ((times % 5) == 0) { // TODO Remove it.
+        //   storage.loadFile("4", print2);
+        // }
       }
-    }    
+    } 
+  }
+
+  if (wdt.shouldSleep(now)) {
+    digitalWrite(ledPin, LOW);
+    delay(100);
+    wdt.sleep();
+  } else {
+    wdt.reset();
   }
 }

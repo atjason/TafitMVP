@@ -150,9 +150,9 @@ void Storage::loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(co
   }
 }
 
-void Storage::setTime(long timeOffset, long tzSeconds) {
+void Storage::setTime(long timeOffset, long tzSeconds = 0) {
   m_timeOffset = timeOffset;
-  m_tzSeconds = tzSeconds;
+  if (tzSeconds != 0) m_tzSeconds = tzSeconds;
   saveConfig();
 }
 
