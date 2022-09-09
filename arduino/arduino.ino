@@ -18,6 +18,7 @@ volatile bool btConnected = false;
 
 unsigned long lastTriggerTime = 0;
 unsigned long lastValidTriggerTime = 0;
+unsigned long lastBTTriggerTime = 0;
 
 Vcc vcc = Vcc();
 
@@ -89,13 +90,17 @@ void loop() {
   BT.monitor();
 
   if (btConnected) {
-    // Serial.println("BT connected.");
-    wdt.updateTimeGate(now);
-    BT.wakeUp();
-    
-    analogWrite(ledPin, 128);
-    delay(200);
-    analogWrite(ledPin, 4);
+    if ((now - lastBTTriggerTime) > 60 * 1000) { // 60s as bt keep on trigger when connected. // TODO Add in enum.
+      lastBTTriggerTime = now;
+
+      Serial.println("BT connected.");
+      wdt.updateTimeGate(now);
+      BT.wakeUp();
+      
+      analogWrite(ledPin, 128);
+      delay(200);
+      analogWrite(ledPin, 4);
+    }
   }
 
   if (hasNewTimes) {
@@ -103,7 +108,6 @@ void loop() {
     wdt.updateTimeGate(now);
     analogWrite(ledPin, 4);
     
-    const int now = millis();
     if ((now - lastTriggerTime) > 50) { // 50ms for bounce.
       lastTriggerTime = now;
 
