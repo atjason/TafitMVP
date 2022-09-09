@@ -4,9 +4,11 @@
 #include "Utils.h"
 #include "Storage.h"
 
-// Pin 10 为 RX，接蓝牙 TXD;
-// Pin 11 为 TX，接蓝牙 RXD;
-SoftwareSerial _BT(6, 7);
+// Pin 4 为 RX，接蓝牙 TXD;
+// Pin 5 为 TX，接蓝牙 RXD;
+SoftwareSerial _BT(4, 5);
+
+const byte enablePin = 8;
 
 String btOp = "";
 String btParam = "";
@@ -37,7 +39,9 @@ Bluetooth::Bluetooth() {
 }
 
 void Bluetooth::begin() {
-  _BT.begin(115200);
+  _BT.begin(115200); // TODO Check state and wait.
+  pinMode(enablePin, OUTPUT);
+  wakeUp();
 }
 
 void Bluetooth::monitor() {
@@ -99,6 +103,14 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
     long fromTime = params[2].toInt();
     storage.loadHistory(fromDay, toDay, fromTime, writeData);
   }
+}
+
+void Bluetooth::sleep() {
+  digitalWrite(enablePin, HIGH);
+}
+
+void Bluetooth::wakeUp() {
+  digitalWrite(enablePin, LOW);
 }
 
 Bluetooth BT = Bluetooth();

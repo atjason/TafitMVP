@@ -7,8 +7,9 @@
 #include "Storage.h"
 #include "Bluetooth.h"
 
-int ledPin = 9; // Original is 13 of built-in led.
-int magneticPin = 2;
+const byte ledPin = 9; // Original is 13 of built-in led.
+const byte magneticPin = 2;
+const byte btStatePin = 7;
 int times = 0;
 String lastTimes = "";
 volatile bool hasNewTimes = false;
@@ -82,6 +83,7 @@ void loop() {
   if (hasNewTimes) {
     hasNewTimes = false;
     wdt.updateTimeGate(now);
+    BT.wakeUp(); // TODO Wait up when BT connected.
     analogWrite(ledPin, 4);
     
     const int now = millis();
@@ -119,6 +121,7 @@ void loop() {
 
   if (wdt.shouldSleep(now)) {
     digitalWrite(ledPin, LOW);
+    BT.sleep();
     delay(100);
     wdt.sleep();
   } else {

@@ -14,6 +14,9 @@ class Bluetooth
 
     void print(const char *);
 
+    void sleep();
+    void wakeUp();
+
   private:
     void parseBTCommand(String &, String &);
 
