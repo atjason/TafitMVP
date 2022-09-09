@@ -6,7 +6,7 @@
 #include "Storage.h"
 #include "Bluetooth.h"
 
-int ledPin = 8; // Original is 13 of built-in led.
+int ledPin = 9; // Original is 13 of built-in led.
 int magneticPin = 2;
 int times = 0;
 String lastTimes = "";
