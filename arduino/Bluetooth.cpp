@@ -37,7 +37,7 @@ Bluetooth::Bluetooth() {
 }
 
 void Bluetooth::begin() {
-  _BT.begin(38400);
+  _BT.begin(115200);
 }
 
 void Bluetooth::monitor() {
