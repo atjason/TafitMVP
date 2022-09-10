@@ -295,6 +295,15 @@ void Storage::listFiles() {
   }
 }
 
+void Storage::removeFile(const char *filename) {
+
+  if(SerialFlash.exists(filename)) {
+    Serial.print("Remove file: "); Serial.println(filename);
+    logFile = SerialFlash.open(filename);
+    logFile.erase();
+  }
+}
+
 void Storage::eraseAll() {
   SerialFlash.eraseAll();
   while (!SerialFlash.ready()) {

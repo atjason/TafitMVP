@@ -42,6 +42,8 @@ class Storage
 
     void listFiles();
 
+    void removeFile(const char *filename);
+
     void eraseAll();
 
   public:
