@@ -37,9 +37,10 @@ void print2(const char *str) { // TODO Remove it.
 }
 
 void sleep() {
-  digitalWrite(ledPin, LOW);
-  BT.sleep();
   Serial.println("Will sleep.");
+  storage.flush();
+  BT.sleep();
+  digitalWrite(ledPin, LOW);
   delay(100);
   wdt.sleep();
 }

@@ -198,6 +198,13 @@ void Storage::add() {
   }
 }
 
+void Storage::flush() {
+  if (addStr.length()) {
+    saveStr(addLastTime, addStr);
+    addStr = "";
+  }
+}
+
 void Storage::saveStr(long timestamp, String str) {
   Serial.println("Save");
   Serial.print("timestamp: "); Serial.println(timestamp);

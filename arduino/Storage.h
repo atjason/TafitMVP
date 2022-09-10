@@ -34,6 +34,8 @@ class Storage
 
     void add();
 
+    void flush();
+
     void loadFile(const char *, void (*fn)(const char *) = NULL, String *str = NULL);
 
     void loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(const char *));
