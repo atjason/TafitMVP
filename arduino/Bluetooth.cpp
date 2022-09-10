@@ -74,7 +74,7 @@ void Bluetooth::print(const char *buffer) {
 
 void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
 
-  if (btOp != "LD" && btOp != "VCC" && btOp != "STT" && btOp != "LDT" && btOp != "RMF") {
+  if (btOp != "LD" && btOp != "VCC" && btOp != "STT" && btOp != "LDT" && btOp != "RMF" && btOp != "RMA") {
     String result = "`OPE&" + btOp + "#";
     Serial.println(result);
     _BT.println(result);
@@ -121,6 +121,10 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
   
   } else if (btOp == "RMF") {
     storage.removeFile(params[0].c_str());
+    print("OK");
+  
+  } else if (btOp == "RMA") {
+    storage.eraseAll();
     print("OK");
   }
 }
