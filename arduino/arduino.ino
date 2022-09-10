@@ -23,7 +23,7 @@ unsigned long lastBTTriggerTime = 0;
 void magneticTriggered() {
   int state = digitalRead(magneticPin);
 //  Serial.println(state);
-  if (state == LOW) {
+  if (state != LOW) {
     hasNewTimes = true;    
   }
 }
@@ -60,7 +60,7 @@ void setup() {
   analogWrite(ledPin, 4);
   
   attachInterrupt(digitalPinToInterrupt(btStatePin), btTriggered, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, FALLING);
+  attachInterrupt(digitalPinToInterrupt(magneticPin), magneticTriggered, RISING);
 
   storage.begin();
   // storage.setTime(1662291921, 8 * 3600);

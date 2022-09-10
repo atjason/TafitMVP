@@ -62,13 +62,13 @@ byte Vcc::checkVoltPercentIfNecessary(long now) {
     nextCheckTime = now + checkInterval;
     voltPercent = checkVoltPercent();
   }
-  Serial.print("Vcc percent: "); Serial.println(voltPercent); // TODO Remove it.
+  // Serial.print("Vcc percent: "); Serial.println(voltPercent); // TODO Remove it.
   return voltPercent;
 }
 
 byte Vcc::checkVoltPercent() {
   volts = readVolts();
-  Serial.print("Vcc: "); Serial.println(volts); // TODO Remove it.
+  // Serial.print("Vcc: "); Serial.println(volts); // TODO Remove it.
 
   const byte listLength = 11;
   const byte percentList[] = {100,90,80,70,60,50,40,30,20,10,0};
