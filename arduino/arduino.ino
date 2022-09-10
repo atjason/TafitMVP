@@ -50,8 +50,8 @@ void setup() {
   while (!Serial)
     delay(100);
 
+  vcc.begin();
   BT.begin();
-
   wdt.begin();
 
   pinMode(ledPin, OUTPUT);

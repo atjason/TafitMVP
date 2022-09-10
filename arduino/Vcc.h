@@ -10,6 +10,8 @@ class Vcc
   public:
     Vcc();
 
+    void begin();
+
     byte checkVoltPercentIfNecessary(long);
     byte checkVoltPercent();
 

@@ -1,6 +1,6 @@
 
-
 #include "Vcc.h"
+#include "Arduino.h"
 
 #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
@@ -12,7 +12,23 @@
 #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
 #endif  
 
+#define VCC_PIN A1
+
+const float maxVolts = 4.2;
+const float lowVolts = 3.68;
+const float minVolts = 3.4;
+
+float volts = maxVolts;
+byte voltPercent = 100;
+
+long nextCheckTime = 0;
+const long checkInterval = 600 * 1000; // 10min
+
 float readVolts() {
+  return analogRead(VCC_PIN) / 1024.0 * 3.3 * 2;
+}
+
+float readVolts2() {
   // Read 1.1V reference against AVcc
   // set the reference to Vcc and the measurement to the internal 1.1V reference
   if (ADMUX != ADMUX_VCCWRT1V1) {
@@ -30,23 +46,15 @@ float readVolts() {
   // Result is now stored in ADC.
   
   // Calculate Vcc (in V)
-  float vcc = 1.1*1024.0 / ADC;
-
-  return vcc;
+  return 1.1*1024.0 / ADC;
 }
-
-const float maxVolts = 4.2;
-const float lowVolts = 3.68;
-const float minVolts = 3.4;
-
-float volts = maxVolts;
-byte voltPercent = 100;
-
-long nextCheckTime = 0;
-const long checkInterval = 600 * 1000; // 10min
 
 Vcc::Vcc() {
 
+}
+
+void Vcc::begin() {
+  pinMode(VCC_PIN, INPUT);
 }
 
 byte Vcc::checkVoltPercentIfNecessary(long now) {
