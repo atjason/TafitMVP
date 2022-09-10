@@ -306,6 +306,7 @@ void Storage::removeFile(const char *filename) {
 }
 
 void Storage::eraseAll() {
+  Serial.println("Will erase all!");
   SerialFlash.eraseAll();
   while (!SerialFlash.ready()) {
     delay(500);  // wait, 30 seconds to 2 minutes for most chips
