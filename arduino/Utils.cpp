@@ -62,7 +62,7 @@ bool Utils::splitString(String str, char separator, byte count, String result[])
     }
   }
 
-  return result[count - 1].length() > 0;
+  return !count || result[count - 1].length() > 0;
 }
 
 Utils utils = Utils();

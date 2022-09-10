@@ -1,6 +1,7 @@
 #include <SoftwareSerial.h>
 
 #include "Bluetooth.h"
+#include "Vcc.h"
 #include "Utils.h"
 #include "Storage.h"
 
@@ -73,7 +74,7 @@ void Bluetooth::print(const char *buffer) {
 
 void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
 
-  if (btOp != "LD") {
+  if (btOp != "LD" && btOp != "VCC") {
     String result = "`OPE&" + btOp + "#";
     Serial.println(result);
     _BT.println(result);
@@ -85,14 +86,14 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
   
   String params[paramCount];
   const char separator = '_';
-  bool paramOk;
+  bool paramOk = true;
 
   if (btOp == "LD") paramOk = utils.splitString(btParam, separator, paramCount, params);
   
   if (!paramOk) {
     String result = "`PAE&" + btParam + "#";
     Serial.println(result);
-    _BT.println(result);
+    _BT.println(result); // TODO Use this.print()
     return;
   }
 
@@ -102,6 +103,10 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
     byte toDay = params[1].toInt();
     long fromTime = params[2].toInt();
     storage.loadHistory(fromDay, toDay, fromTime, writeData);
+    
+  } else if (btOp == "VCC") {
+    String str = String(vcc.getVolts());
+    print(str.c_str());
   }
 }
 
