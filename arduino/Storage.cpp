@@ -128,7 +128,8 @@ void Storage::loadFile(const char *filename, void (*fn)(const char *), String *s
 void Storage::loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(const char *)) {
   
   const byte monthDays = 31;
-  for (byte day = fromDay + monthDays; day <= (toDay + monthDays); day++) {
+  const byte endDay = (toDay >= fromDay) ? toDay : (toDay + monthDays);
+  for (byte day = fromDay; day <= endDay; day++) {
     String filename = String(day % (monthDays + 1) + 1);
 
     if(!SerialFlash.exists(filename.c_str())) {
