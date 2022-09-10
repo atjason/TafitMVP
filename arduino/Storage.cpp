@@ -311,6 +311,7 @@ void Storage::eraseAll() {
   while (!SerialFlash.ready()) {
     delay(500);  // wait, 30 seconds to 2 minutes for most chips
   }
+  Serial.println("Done.");
 }
 
 Storage storage = Storage();
