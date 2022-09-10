@@ -141,7 +141,7 @@ void loop() {
 
         times += 1;
         Serial.println(times);
-        BT.print(String(times).c_str());
+        if (btConnected) BT.print(String(times).c_str());
 
         String str = String("Times: ");
         str.concat(times);
