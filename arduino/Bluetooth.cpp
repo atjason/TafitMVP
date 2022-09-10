@@ -74,7 +74,7 @@ void Bluetooth::print(const char *buffer) {
 
 void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
 
-  if (btOp != "LD" && btOp != "VCC" && btOp != "STT") {
+  if (btOp != "LD" && btOp != "VCC" && btOp != "STT" && btOp != "LDT") {
     String result = "`OPE&" + btOp + "#";
     Serial.println(result);
     _BT.println(result);
@@ -105,7 +105,7 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
     storage.loadHistory(fromDay, toDay, fromTime, writeData);
     
   } else if (btOp == "VCC") {
-    String str = String(vcc.getVolts());
+    String str = "`VCCR&" + String(vcc.getVolts()) + "#";
     print(str.c_str());
   
   } else if (btOp == "STT") {
@@ -113,6 +113,10 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
     long tzSeconds = params[1].toInt();
     storage.setTime(timeOffset, tzSeconds);
     print("OK");
+  
+  } else if (btOp == "LDT") {
+    String str = "`LDT&" + String(storage.m_timeOffset) + "_" + String(storage.m_tzSeconds) + "#";
+    print(str.c_str());
   }
 }
 

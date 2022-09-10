@@ -46,10 +46,10 @@ class Storage
 
   public:
     long m_timeOffset;
+    int m_tzSeconds;
 
   private:
     char *m_configFile;
-    int m_tzSeconds;
 
     void loadConfig();
     void saveConfig();
