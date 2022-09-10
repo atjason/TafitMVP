@@ -74,7 +74,7 @@ void Bluetooth::print(const char *buffer) {
 
 void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
 
-  if (btOp != "LD" && btOp != "VCC") {
+  if (btOp != "LD" && btOp != "VCC" && btOp != "STT") {
     String result = "`OPE&" + btOp + "#";
     Serial.println(result);
     _BT.println(result);
@@ -83,17 +83,17 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
 
   byte paramCount = 0;
   if (btOp == "LD") paramCount = 3;
+  if (btOp == "STT") paramCount = 2;
   
   String params[paramCount];
   const char separator = '_';
-  bool paramOk = true;
 
-  if (btOp == "LD") paramOk = utils.splitString(btParam, separator, paramCount, params);
+  bool paramOk = utils.splitString(btParam, separator, paramCount, params);
   
   if (!paramOk) {
-    String result = "`PAE&" + btParam + "#";
+    String result = "`PAE&" + btOp + "_" + btParam + "#";
     Serial.println(result);
-    _BT.println(result); // TODO Use this.print()
+    _BT.println(result);
     return;
   }
 
@@ -107,6 +107,12 @@ void Bluetooth::parseBTCommand(String &btOp, String &btParam) {
   } else if (btOp == "VCC") {
     String str = String(vcc.getVolts());
     print(str.c_str());
+  
+  } else if (btOp == "STT") {
+    long timeOffset = params[0].toInt();
+    long tzSeconds = params[1].toInt();
+    storage.setTime(timeOffset, tzSeconds);
+    print("OK");
   }
 }
 
