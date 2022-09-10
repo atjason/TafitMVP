@@ -151,7 +151,7 @@ void loop() {
         long totalSleepTime = wdt.getTotalSleepTime();
         if (totalSleepTime) {
           wdt.resetTotalSleepTime();
-          storage.setTime(storage.m_timeOffset + totalSleepTime);
+          storage.setTime(storage.m_timeOffset + long(totalSleepTime / 1000));
         }
         
         // if ((times % 5) == 0) { // TODO Remove it.
