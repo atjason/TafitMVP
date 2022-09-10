@@ -130,7 +130,7 @@ void Storage::loadHistory(byte fromDay, byte toDay, long fromTime, void (*fn)(co
   const byte monthDays = 31;
   const byte endDay = (toDay >= fromDay) ? toDay : (toDay + monthDays);
   for (byte day = fromDay; day <= endDay; day++) {
-    String filename = String(day % (monthDays + 1) + 1);
+    String filename = (day <= monthDays) ? String(day) : String(day % (monthDays + 1) + 1);
 
     if(!SerialFlash.exists(filename.c_str())) {
       Serial.print(F("No file: ")); Serial.println(filename);
