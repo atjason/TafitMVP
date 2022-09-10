@@ -1,29 +1,6 @@
-/*
-  Vcc - A supply voltage measuring library for Arduino
-  Created by Ivo Pullens, Emmission, 2014
-  
-  Inspired by:
-  http://provideyourown.com/2012/secret-arduino-voltmeter-measure-battery-voltage/
-  
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+
 
 #include "Vcc.h"
-
-Vcc::Vcc( const float correction )
-  : m_correction(correction)
-{
-}
 
 #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX4) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
@@ -35,12 +12,10 @@ Vcc::Vcc( const float correction )
 #define ADMUX_VCCWRT1V1 (_BV(REFS0) | _BV(MUX3) | _BV(MUX2) | _BV(MUX1))
 #endif  
 
-float Vcc::Read_Volts(void)
-{
+float readVolts() {
   // Read 1.1V reference against AVcc
   // set the reference to Vcc and the measurement to the internal 1.1V reference
-  if (ADMUX != ADMUX_VCCWRT1V1)
-  {
+  if (ADMUX != ADMUX_VCCWRT1V1) {
     ADMUX = ADMUX_VCCWRT1V1;
 
     // Bandgap reference start-up time: max 70us
@@ -57,19 +32,61 @@ float Vcc::Read_Volts(void)
   // Calculate Vcc (in V)
   float vcc = 1.1*1024.0 / ADC;
 
-  // Apply compensation
-  vcc *= m_correction;
-
   return vcc;
 }
 
-float Vcc::Read_Perc(const float range_min, const float range_max, const bool clip)
-{
-  // Read Vcc and convert to percentage
-  float perc = 100.0 * (Read_Volts()-range_min) / (range_max-range_min);
-  // Clip to [0..100]% range, when requested.
-  if (clip)
-    perc = constrain(perc, 0.0, 100.0);
+const float maxVolts = 4.2;
+const float lowVolts = 3.68;
+const float minVolts = 3.4;
 
-  return perc;
+float volts = maxVolts;
+byte voltPercent = 100;
+
+long nextCheckTime = 0;
+const long checkInterval = 600 * 1000; // 10min
+
+Vcc::Vcc() {
+
 }
+
+byte Vcc::checkVoltPercentIfNecessary(long now) {
+  if (now > nextCheckTime) {
+    nextCheckTime = now + checkInterval;
+    voltPercent = checkVoltPercent();
+  }
+  Serial.print("Vcc percent: "); Serial.println(voltPercent); // TODO Remove it.
+  return voltPercent;
+}
+
+byte Vcc::checkVoltPercent() {
+  volts = readVolts();
+  Serial.print("Vcc: "); Serial.println(volts); // TODO Remove it.
+
+  const byte listLength = 11;
+  const byte percentList[] = {100,90,80,70,60,50,40,30,20,10,0};
+  const float voltsList[] = {maxVolts, 4.06,3.98,3.92,3.87,3.82,3.79,3.77,3.74,3.68, minVolts};
+
+  if (volts >= maxVolts) {
+    return 100;
+  } else if (volts <= minVolts) {
+    return 0;
+  } else {
+    for (byte i = 1; i < listLength; i++) {
+      if (volts > voltsList[i]) {
+        return byte((volts - voltsList[i]) / (voltsList[i-1] - voltsList[i]) * (percentList[i-1] - percentList[i])) + percentList[i];
+      }
+    }
+  }
+  return 0;
+}
+
+bool Vcc::isLowVolt() {
+  return volts < lowVolts;
+}
+
+float Vcc::getVolts() {
+  checkVoltPercent();
+  return volts;
+}
+
+Vcc vcc = Vcc();

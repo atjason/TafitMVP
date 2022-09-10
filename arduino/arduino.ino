@@ -20,8 +20,6 @@ unsigned long lastTriggerTime = 0;
 unsigned long lastValidTriggerTime = 0;
 unsigned long lastBTTriggerTime = 0;
 
-Vcc vcc = Vcc();
-
 void magneticTriggered() {
   int state = digitalRead(magneticPin);
 //  Serial.println(state);
@@ -36,6 +34,14 @@ void btTriggered() {
 
 void print2(const char *str) { // TODO Remove it.
   Serial.print(str);
+}
+
+void sleep() {
+  digitalWrite(ledPin, LOW);
+  BT.sleep();
+  Serial.println("Will sleep.");
+  delay(100);
+  wdt.sleep();
 }
 
 void setup() {
@@ -89,9 +95,22 @@ void setup() {
 void loop() {
   const long now = millis();
 
-  BT.monitor();
+  vcc.checkVoltPercentIfNecessary(now);
+  bool isLowVolt = vcc.isLowVolt();
+  if (isLowVolt) {
+    for (byte i = 0; i < 5; i++) {
+      analogWrite(ledPin, 128);
+      delay(200);
+      analogWrite(ledPin, 4);
+      delay(200);
+    }
+    sleep();
+    return;
+  }
 
   if (btConnected) {
+    BT.monitor();
+
     if (!lastBTTriggerTime || (now - lastBTTriggerTime) > 10 * 1000) { // 10s as bt keep on trigger when connected. // TODO Add in enum.
       lastBTTriggerTime = now;
 
@@ -143,11 +162,7 @@ void loop() {
   }
 
   if (wdt.shouldSleep(now) && !btConnected) {
-    digitalWrite(ledPin, LOW);
-    BT.sleep();
-    Serial.println("Will sleep.");
-    delay(100);
-    wdt.sleep();
+    sleep();
   } else {
     wdt.reset();
   }
