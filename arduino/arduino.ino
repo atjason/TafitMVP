@@ -96,7 +96,7 @@ void loop() {
   const long now = millis();
 
   vcc.checkVoltPercentIfNecessary(now);
-  bool isLowVolt = vcc.isLowVolt();
+  bool isLowVolt = !Serial && vcc.isLowVolt();
   if (isLowVolt) {
     for (byte i = 0; i < 5; i++) {
       analogWrite(ledPin, 128);
